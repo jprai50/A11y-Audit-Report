@@ -5,7 +5,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).parent
 CSV_PATH = ROOT / "issues.csv"
-OUT_PATH = ROOT / "Accessibility_Issues_Report.html"
+OUT_PATH = ROOT / "Accessibility_Audit_Report.html"
 IMPACT_ORDER = ["Critical", "Serious", "Moderate", "Minor"]
 SUCCESS_CRITERIA_MAPPING = {
     "1.1.1": "1.1.1 Non-Text Content",
