@@ -1,0 +1,1100 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Recipe Dashboard | Accessibility Audit Report</title>
+  <style>
+    body { font-family: "Segoe UI", Arial, sans-serif; background: #f7f7f7; margin: 0; padding: 0; }
+    .container { max-width: 980px; margin: 32px auto; background: #fff; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); padding: 28px; }
+    h1 { color: #004e9a; margin: 0 0 24px; }
+    .accordion { margin-bottom: 16px; }
+    .accordion-header { width: 100%; background: #e9f1fb; color: #004e9a; padding: 14px 16px; cursor: pointer; border-radius: 8px; font-size: 1.05em; font-weight: 700; border: 1px solid #014E9A; display: flex; align-items: center; gap: 10px; }
+    .accordion-title { flex: 1; text-align: left; }
+    .accordion-count { font-size: 0.92em; color: #5a6570; }
+    .caret { transition: transform 0.2s; display: inline-block; }
+    .caret.rotate { transform: rotate(90deg); }
+    .accordion-content { display: none; margin-top: 8px; padding: 14px; border: 1px solid #c7e0f7; border-radius: 8px; background: #f5faff; }
+    .accordion-content.open { display: block; }
+    .severity-header { width: 100%; background: #e9f1fb; color: #004e9a; padding: 14px 16px; border-radius: 8px; font-size: 1.05em; font-weight: 700; border: 1px solid #014E9A; display: flex; align-items: center; gap: 10px; }
+    .severity-caret { border: 0; background: transparent; color: #004e9a; cursor: pointer; padding: 0; display: inline-flex; align-items: center; }
+    .severity-caret:focus-visible { outline: 2px solid #004e9a; outline-offset: 2px; border-radius: 4px; }
+    .issue { margin-bottom: 20px; padding: 14px; border: 1px solid #d9e7f7; border-radius: 8px; background: #fff; }
+    .issue:last-child { margin-bottom: 0; }
+    .issue-number { font-size: 1.4em; line-height: 1.2; color: #003b75; font-weight: 800; margin: 2px 0 12px; padding-bottom: 6px; border-bottom: 2px solid darkgray; letter-spacing: 0.2px; }
+    .criteria-chart-section { margin: 4px 0 28px; }
+    .criteria-chart-title { color: #2a2a2a; font-size: 1.5em; font-weight: 700; margin: 0 0 12px; }
+    .issue-total-label { font-size: 1em; font-weight: 700; padding-bottom: 2em; }
+    .report-details { background: #f8fbff; border: 1px solid #c7e0f7; border-radius: 8px; padding: 12px 14px; margin: 0 0 18px; }
+    .report-details p { margin: 6px 0; color: #2a2a2a; }
+    .report-details strong { color: #003b75; }
+    .criteria-chart-row { display: grid; grid-template-columns: minmax(210px, 360px) 1fr; gap: 14px; align-items: center; margin-bottom: 8px; }
+    .criteria-chart-label { text-align: right; color: #333; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .criteria-chart-x { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 8px; }
+    .criteria-chart-bar-wrap { width: 100%; background: #e6e6e6; border-radius: 3px; overflow: hidden; border: 1px solid #d1d1d1; }
+    .criteria-chart-bar { height: 24px; background: #127ac0; }
+    .criteria-chart-count { color: #127ac0; font-weight: 700; font-size: 1.85em; line-height: 1; min-width: 24px; text-align: right; }
+    .criteria-chart-axis { font-size: 0.88em; color: #666; margin-top: 6px; text-align: right; }
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+    .label { font-weight: 700; color: #2a2a2a; display: block; margin-top: 8px; }
+    .source-code, .recommended-fix, .description { white-space: pre-wrap; line-height: 1.4; }
+    .source-code { background: #202225; color: #f2f2f2; padding: 10px; border-radius: 6px; overflow-x: auto; }
+    .recommended-fix { background: #fffbe6; border-left: 4px solid #ffe066; padding: 10px 12px; border-radius: 4px; }
+    .recommended-fix .fix-section-label { display: block; margin-top: 12px; font-weight: 700; color: #2a2a2a; }
+    a { color: #126fbd; text-decoration: underline; }
+    .screenshots img { max-width: 320px; width: 100%; height: auto; margin: 8px 8px 0 0; border: 1px solid #cfd8e3; border-radius: 6px; background: #fff; }
+    .empty { color: #606c78; font-style: italic; }
+    .impact-issues-section { padding-top:1.5em; }
+    .severity-section { margin-top: 28px; }
+    .severity-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+    .severity-table td { border: 1px solid #b8c7d6; padding: 10px; vertical-align: top; color: #2a2a2a; line-height: 1.35; }
+    .severity-label { width: 130px; font-weight: 700; text-align: center; background: #f2f7fc; }
+  </style>
+</head>
+<body>
+<main>
+  <div class="container">
+    <h1>Recipe Dashboard - Accessibility Audit Report</h1>
+    <section class="report-details" aria-label="Testing details">
+      <p><strong>Page URL:</strong> <a href="https://broken-workshop.dequelabs.com/" target="_blank" rel="noopener noreferrer">https://broken-workshop.dequelabs.com/</a></p>
+      <p><strong>Scope Of Testing:</strong> Dashboard Page, Cook (recipe) dialog, and Edit recipe dialog</p>
+      <p><strong>Accessibility Testing Standard:</strong> WCAG 2.2 Level AA</p>
+      <p><strong>Digital asset type:</strong> Webpage</p>
+      <p><strong>Assistive technology:</strong> VoiceOver (macOS)</p>
+      <p><strong>Browser:</strong> Safari V26.2</p>
+    </section>
+    <section class="criteria-chart-section" aria-label="Success criteria distribution">
+      <h2 class="criteria-chart-title">Success Criteria Distribution</h2>
+      <p class="issue-total-label">Total 24 issues found in the audit across different success criteria</p>
+      <div class="criteria-chart-row">
+        <div class="criteria-chart-label" title="Info and Relationships (1.3.1)">Info and Relationships (1.3.1)</div>
+        <div class="criteria-chart-x">
+          <div class="criteria-chart-bar-wrap">
+            <div class="criteria-chart-bar" style="width: 100.00%"></div>
+          </div>
+          <div class="criteria-chart-count" aria-label="Count 3">3</div>
+        </div>
+      </div>
+      <div class="criteria-chart-row">
+        <div class="criteria-chart-label" title="Headings and Labels (2.4.6)">Headings and Labels (2.4.6)</div>
+        <div class="criteria-chart-x">
+          <div class="criteria-chart-bar-wrap">
+            <div class="criteria-chart-bar" style="width: 100.00%"></div>
+          </div>
+          <div class="criteria-chart-count" aria-label="Count 3">3</div>
+        </div>
+      </div>
+      <div class="criteria-chart-row">
+        <div class="criteria-chart-label" title="Name, Role, Value (4.1.2)">Name, Role, Value (4.1.2)</div>
+        <div class="criteria-chart-x">
+          <div class="criteria-chart-bar-wrap">
+            <div class="criteria-chart-bar" style="width: 100.00%"></div>
+          </div>
+          <div class="criteria-chart-count" aria-label="Count 3">3</div>
+        </div>
+      </div>
+      <div class="criteria-chart-row">
+        <div class="criteria-chart-label" title="Non-Text Content (1.1.1)">Non-Text Content (1.1.1)</div>
+        <div class="criteria-chart-x">
+          <div class="criteria-chart-bar-wrap">
+            <div class="criteria-chart-bar" style="width: 66.67%"></div>
+          </div>
+          <div class="criteria-chart-count" aria-label="Count 2">2</div>
+        </div>
+      </div>
+      <div class="criteria-chart-row">
+        <div class="criteria-chart-label" title="Reflow (1.4.10)">Reflow (1.4.10)</div>
+        <div class="criteria-chart-x">
+          <div class="criteria-chart-bar-wrap">
+            <div class="criteria-chart-bar" style="width: 66.67%"></div>
+          </div>
+          <div class="criteria-chart-count" aria-label="Count 2">2</div>
+        </div>
+      </div>
+      <div class="criteria-chart-row">
+        <div class="criteria-chart-label" title="Non-Text Contrast (1.4.11)">Non-Text Contrast (1.4.11)</div>
+        <div class="criteria-chart-x">
+          <div class="criteria-chart-bar-wrap">
+            <div class="criteria-chart-bar" style="width: 66.67%"></div>
+          </div>
+          <div class="criteria-chart-count" aria-label="Count 2">2</div>
+        </div>
+      </div>
+      <div class="criteria-chart-row">
+        <div class="criteria-chart-label" title="Contrast Minimum (1.4.3)">Contrast Minimum (1.4.3)</div>
+        <div class="criteria-chart-x">
+          <div class="criteria-chart-bar-wrap">
+            <div class="criteria-chart-bar" style="width: 66.67%"></div>
+          </div>
+          <div class="criteria-chart-count" aria-label="Count 2">2</div>
+        </div>
+      </div>
+      <div class="criteria-chart-row">
+        <div class="criteria-chart-label" title="Keyboard (2.1.1)">Keyboard (2.1.1)</div>
+        <div class="criteria-chart-x">
+          <div class="criteria-chart-bar-wrap">
+            <div class="criteria-chart-bar" style="width: 33.33%"></div>
+          </div>
+          <div class="criteria-chart-count" aria-label="Count 1">1</div>
+        </div>
+      </div>
+      <div class="criteria-chart-row">
+        <div class="criteria-chart-label" title="Page Titled (2.4.2)">Page Titled (2.4.2)</div>
+        <div class="criteria-chart-x">
+          <div class="criteria-chart-bar-wrap">
+            <div class="criteria-chart-bar" style="width: 33.33%"></div>
+          </div>
+          <div class="criteria-chart-count" aria-label="Count 1">1</div>
+        </div>
+      </div>
+      <div class="criteria-chart-row">
+        <div class="criteria-chart-label" title="Focus Order (2.4.3)">Focus Order (2.4.3)</div>
+        <div class="criteria-chart-x">
+          <div class="criteria-chart-bar-wrap">
+            <div class="criteria-chart-bar" style="width: 33.33%"></div>
+          </div>
+          <div class="criteria-chart-count" aria-label="Count 1">1</div>
+        </div>
+      </div>
+      <div class="criteria-chart-row">
+        <div class="criteria-chart-label" title="Label in Name (2.5.3)">Label in Name (2.5.3)</div>
+        <div class="criteria-chart-x">
+          <div class="criteria-chart-bar-wrap">
+            <div class="criteria-chart-bar" style="width: 33.33%"></div>
+          </div>
+          <div class="criteria-chart-count" aria-label="Count 1">1</div>
+        </div>
+      </div>
+      <div class="criteria-chart-row">
+        <div class="criteria-chart-label" title="Error Identification (3.3.1)">Error Identification (3.3.1)</div>
+        <div class="criteria-chart-x">
+          <div class="criteria-chart-bar-wrap">
+            <div class="criteria-chart-bar" style="width: 33.33%"></div>
+          </div>
+          <div class="criteria-chart-count" aria-label="Count 1">1</div>
+        </div>
+      </div>
+      <div class="criteria-chart-row">
+        <div class="criteria-chart-label" title="Error Suggestion (3.3.3)">Error Suggestion (3.3.3)</div>
+        <div class="criteria-chart-x">
+          <div class="criteria-chart-bar-wrap">
+            <div class="criteria-chart-bar" style="width: 33.33%"></div>
+          </div>
+          <div class="criteria-chart-count" aria-label="Count 1">1</div>
+        </div>
+      </div>
+      <div class="criteria-chart-row">
+        <div class="criteria-chart-label" title="Status Messages (4.1.3)">Status Messages (4.1.3)</div>
+        <div class="criteria-chart-x">
+          <div class="criteria-chart-bar-wrap">
+            <div class="criteria-chart-bar" style="width: 33.33%"></div>
+          </div>
+          <div class="criteria-chart-count" aria-label="Count 1">1</div>
+        </div>
+      </div>
+    </section>
+    <section class="impact-issues-section" aria-label="Issue details grouped by impact level">
+    <h2>Issue details grouped by impact level</h2>
+    <div class="accordion">
+      <button class="accordion-header" type="button" aria-expanded="false" aria-controls="critical-content" id="critical-header">
+        <span class="accordion-title">Critical</span>
+        <span class="accordion-count">(5 issues)</span>
+        <span class="caret">&#9654;</span>
+      </button>
+      <div class="accordion-content" id="critical-content" aria-labelledby="critical-header">
+        <div class="issue">
+          <div class="issue-number" role="heading" aria-level="3"><span class="sr-only">Critical </span>Issue 1</div>
+          <span class="label">Page/Component Name</span>
+          <div>Dashboard</div>
+          <span class="label">Summary</span>
+          <div>Action cannot be performed by keyboard alone</div>
+          <span class="label">Description</span>
+          <div class="description">General - There is no way to perform the function using only the keyboard.
+The edit recipe icon buttons are keyboard focusable, but they cannot be activated by either the Enter key or Spacebar</div>
+          <span class="label">Success Criteria</span>
+          <div>2.1.1</div>
+          <span class="label">Screenshot</span>
+          <div class="screenshots">
+            <a href="https://axeauditor.dequecloud.com/api/v2/file/a5c3543a-1d3e-11f1-a560-b3c0607875a3" target="_blank" rel="noopener noreferrer"><img src="https://axeauditor.dequecloud.com/api/v2/file/a5c3543a-1d3e-11f1-a560-b3c0607875a3" alt="Critical Issue 1 first screenshot" loading="lazy" /></a>
+          </div>
+          <span class="label">Source Code</span>
+          <pre class="source-code">element 1 : &lt;div tabindex=&quot;0&quot;&gt;&lt;img src=&quot;/pencil.e81f7a41.png&quot; class=&quot;edit&quot; alt=&quot;Edit&quot;&gt;&lt;/div&gt;</pre>
+          <span class="label">Recommended Fix</span>
+          <div class="recommended-fix">Fix this issue by ensuring the component can be used by the keyboard.
+
+<span class="fix-section-label">REFERENCE:</span> 
+Deque University:<a href="https://dequeuniversity.com/class/input-methods2/keyboard-input/functionality" target="_blank" rel="noopener noreferrer">https://dequeuniversity.com/class/input-methods2/keyboard-input/functionality</a>
+
+W3C: <a href="https://www.w3.org/WAI/WCAG21/Understanding/keyboard.html" target="_blank" rel="noopener noreferrer">https://www.w3.org/WAI/WCAG21/Understanding/keyboard.html</a>
+
+<span class="fix-section-label">BACKGROUND:</span> 
+Some people cannot use a mouse due to vision or motor disabilities. Content that can be operated with a mouse must also be made operable with a keyboard. When content is operable through a keyboard, it becomes operable by a variety of assistive technologies such as speech input software, sip-and-puff software, on-screen keyboards, scanning software, and alternate keyboards.</div>
+        </div>
+        <div class="issue">
+          <div class="issue-number" role="heading" aria-level="3"><span class="sr-only">Critical </span>Issue 2</div>
+          <span class="label">Page/Component Name</span>
+          <div>Dashboard</div>
+          <span class="label">Summary</span>
+          <div>aria-hidden=&quot;true&quot; is used incorrectly</div>
+          <span class="label">Description</span>
+          <div class="description">aria-hidden=&quot;true&quot; is used on informative content making it inaccessible to assistive technology.
+In the Yumminess bar chart, aria-hidden is used to hide the visible score and month from screen readers. The information is replaced by an aria-label on the &lt;li&gt; containing the bar and textual information. aria-label cannot be used on an &lt;li&gt;, so the screen reader actually reads no information at all.</div>
+          <span class="label">Success Criteria</span>
+          <div>1.3.1</div>
+          <span class="label">Screenshot</span>
+          <div class="screenshots">
+            <a href="https://axeauditor.dequecloud.com/api/v2/file/d66357b4-1d3b-11f1-90ce-839b25a36fa2" target="_blank" rel="noopener noreferrer"><img src="https://axeauditor.dequecloud.com/api/v2/file/d66357b4-1d3b-11f1-90ce-839b25a36fa2" alt="Critical Issue 2 first screenshot" loading="lazy" /></a>
+          </div>
+          <span class="label">Source Code</span>
+          <pre class="source-code">element 1 : &lt;li aria-label=&quot;50 average in nov&quot;&gt;&lt;div aria-hidden=&quot;true&quot; style=&quot;height: 50px;&quot;&gt;&lt;span&gt;50&lt;/span&gt;&lt;/div&gt;&lt;div class=&quot;Stat__value-histogram-month&quot; aria-hidden=&quot;true&quot;&gt;nov&lt;/div&gt;&lt;/li&gt;</pre>
+          <span class="label">Recommended Fix</span>
+          <div class="recommended-fix">Fix this issue by removing the aria-hidden attribute OR using a supported technique such as CSS clipped text.
+
+<span class="fix-section-label">REFERENCE:</span> 
+ARIA Specification: <a href="https://www.w3.org/TR/wai-aria-1.1/#aria-hidden" target="_blank" rel="noopener noreferrer">https://www.w3.org/TR/wai-aria-1.1/#aria-hidden</a>
+
+<span class="fix-section-label">BACKGROUND:</span> 
+Using the aria-hidden=&quot;true&quot; attribute on an element removes the element and ALL of its child nodes from the accessibility API making it completely inaccessible to screen readers and other assistive technologies. Aria-hidden may be used with extreme caution to hide visibly rendered content from assistive technologies only if the act of hiding this content is intended to improve the experience for users of assistive technologies by removing redundant or extraneous content. If aria-hidden is used to hide visible content from screen readers, the identical or equivalent meaning and functionality must be exposed to assistive technologies.</div>
+        </div>
+        <div class="issue">
+          <div class="issue-number" role="heading" aria-level="3"><span class="sr-only">Critical </span>Issue 3</div>
+          <span class="label">Page/Component Name</span>
+          <div>Edit recipe dialog</div>
+          <span class="label">Summary</span>
+          <div>Form field with error not identified</div>
+          <span class="label">Description</span>
+          <div class="description">The form field with an error is not identified in text, or text alternative, or via programmatic association.
+The error message for an empty instruction text area says &quot;Ingredient must not be empty&quot;. It should reference &quot;Instruction&quot; instead</div>
+          <span class="label">Success Criteria</span>
+          <div>3.3.1</div>
+          <span class="label">Screenshot</span>
+          <div class="screenshots">
+            <a href="https://axeauditor.dequecloud.com/api/v2/file/3f3dad0c-1d4b-11f1-9ff6-5bae8c8a850e" target="_blank" rel="noopener noreferrer"><img src="https://axeauditor.dequecloud.com/api/v2/file/3f3dad0c-1d4b-11f1-9ff6-5bae8c8a850e" alt="Critical Issue 3 first screenshot" loading="lazy" /></a>
+          </div>
+          <span class="label">Source Code</span>
+          <pre class="source-code">element 1 : &lt;div class=&quot;dqpl-field-wrap&quot;&gt;
+  &lt;label class=&quot;dqpl-label dqpl-required dqpl-error&quot; for=&quot;x_26_3529&quot;
+    &gt;&lt;span&gt;Instruction&lt;/span
+    &gt;&lt;span class=&quot;dqpl-required-text&quot;&gt;Required&lt;/span&gt;&lt;/label
+  &gt;&lt;textarea
+    class=&quot;dqpl-textarea dqpl-error&quot;
+    id=&quot;x_26_3529&quot;
+    aria-invalid=&quot;true&quot;
+    required=&quot;&quot;
+    aria-describedby=&quot; x_27_320&quot;
+  &gt;&lt;/textarea&gt;
+  &lt;div class=&quot;dqpl-error-wrap&quot; id=&quot;x_27_320&quot;&gt;Ingredient must not be empty&lt;/div&gt;
+&lt;/div&gt;</pre>
+          <span class="label">Recommended Fix</span>
+          <div class="recommended-fix">Fix this issue by including the correct field name in the error message.
+
+<span class="fix-section-label">REFERENCE:</span> 
+Deque University: <a href="https://dequeuniversity.com/class/forms2/form-validation/error-identification" target="_blank" rel="noopener noreferrer">https://dequeuniversity.com/class/forms2/form-validation/error-identification</a>
+W3C-WAI tutorial: <a href="https://www.w3.org/WAI/tutorials/forms/notifications/" target="_blank" rel="noopener noreferrer">https://www.w3.org/WAI/tutorials/forms/notifications/</a>
+
+<span class="fix-section-label">BACKGROUND:</span> 
+When form fields that have an error are not identified with a text-based error message people who are blind or have low vision may not be able to understand that an error has occurred and what went wrong. In order to provide feedback that can be accessed by all users, error messages must be provided in a text format. Error messages must indicate which input is in error - either by the text of the error message or programmatically - and the nature of the error. This will allow people to recover from mistakes while filling out a form.</div>
+        </div>
+        <div class="issue">
+          <div class="issue-number" role="heading" aria-level="3"><span class="sr-only">Critical </span>Issue 4</div>
+          <span class="label">Page/Component Name</span>
+          <div>Dashboard</div>
+          <span class="label">Summary</span>
+          <div>Images must have alternative text</div>
+          <span class="label">Description</span>
+          <div class="description">Images must have alternative text.
+Element Location: The 8 food images present on the page.</div>
+          <span class="label">Success Criteria</span>
+          <div>1.1.1</div>
+          <span class="label">Screenshot</span>
+          <div class="screenshots">
+            <a href="https://axeauditor.dequecloud.com/api/v2/file/6f666dd2-1d61-11f1-8f0e-3fbfe9ba2fbe" target="_blank" rel="noopener noreferrer"><img src="https://axeauditor.dequecloud.com/api/v2/file/6f666dd2-1d61-11f1-8f0e-3fbfe9ba2fbe" alt="Critical Issue 4 first screenshot" loading="lazy" /></a>
+          </div>
+          <span class="label">Source Code</span>
+          <pre class="source-code">element 1 : &lt;img src=&quot;/food/cake.png&quot; class=&quot;Recipe__image&quot;&gt;
+&lt;img src=&quot;/food/spaget.png&quot; class=&quot;Recipe__image&quot;&gt;
+&lt;img src=&quot;/food/steak.png&quot; class=&quot;Recipe__image&quot;&gt;
+&lt;img src=&quot;/food/burger.png&quot; class=&quot;Recipe__image&quot;&gt;
+&lt;img src=&quot;/food/grilled_cheese.png&quot; class=&quot;Recipe__image&quot;&gt;
+&lt;img src=&quot;/food/lemon_bar.png&quot; class=&quot;Recipe__image&quot;&gt;
+&lt;img src=&quot;/food/kale_salad.png&quot; class=&quot;Recipe__image&quot;&gt;
+&lt;img src=&quot;/food/trail_mix.png&quot; class=&quot;Recipe__image&quot;&gt;</pre>
+          <span class="label">Recommended Fix</span>
+          <div class="recommended-fix">Ensure all the informative &lt;img&gt; elements have short, descriptive alternate text, and all the decorative &lt;img&gt; elements have empty alt attributes (e.g. alt=&quot;&quot;).
+
+<span class="fix-section-label">REFERENCE:</span>
+<a href="https://dequeuniversity.com/rules/axe/4.11/image-alt" target="_blank" rel="noopener noreferrer">https://dequeuniversity.com/rules/axe/4.11/image-alt</a> 
+
+<span class="fix-section-label">BACKGROUND:</span>
+Screen readers have no way of translating an image into words that gets read to the user, even if the image only consists of text. As a result, it&#x27;s necessary for images to have short, descriptive alt text so screen reader users clearly understand the image&#x27;s contents and purpose.</div>
+        </div>
+        <div class="issue">
+          <div class="issue-number" role="heading" aria-level="3"><span class="sr-only">Critical </span>Issue 5</div>
+          <span class="label">Page/Component Name</span>
+          <div>Cook (recipe) dialog</div>
+          <span class="label">Summary</span>
+          <div>Form elements must have labels</div>
+          <span class="label">Description</span>
+          <div class="description">Form elements must have labels.
+Element Location: Rate the yumminess (0 - 50) Input Field</div>
+          <span class="label">Success Criteria</span>
+          <div>4.1.2</div>
+          <span class="label">Screenshot</span>
+          <div class="screenshots">
+            <a href="https://axeauditor.dequecloud.com/api/v2/file/06560138-1d50-11f1-9abd-77297519e818" target="_blank" rel="noopener noreferrer"><img src="https://axeauditor.dequecloud.com/api/v2/file/06560138-1d50-11f1-9abd-77297519e818" alt="Critical Issue 5 first screenshot" loading="lazy" /></a>
+          </div>
+          <span class="label">Source Code</span>
+          <pre class="source-code">element 1 : &lt;input class=&quot;dqpl-text-input&quot; id=&quot;x_0_3489&quot; aria-invalid=&quot;false&quot; type=&quot;number&quot; min=&quot;0&quot; max=&quot;50&quot; value=&quot;50&quot;&gt;</pre>
+          <span class="label">Recommended Fix</span>
+          <div class="recommended-fix">Ensure that the Input field for Rate the yumminess (0 - 50) is programatically associated with its visible label.
+
+You can achieve programatic association using the following techniques:
+
+1. Add a unique id attribute on the html 
+&lt;div id=&quot;rating-label&quot; class=&quot;dqpl-label&quot;&gt;Rate the yumminess (0 - 50)&lt;/div&gt;. 
+Programatically associate this label with the &lt;input&gt; filed using attribute aria-labelledby on the &lt;input&gt; tag.
+
+2. Add aria-label attribute with value of visible label text on the &lt;input&gt; tag.
+
+3. Refactor the HTML such that the visible label text moves inside the existing &lt;label class=&quot;dqpl-label&quot; for=&quot;x_0_8412&quot;&gt;
+
+<span class="fix-section-label">REFERENCE:</span>
+<a href="https://dequeuniversity.com/rules/axe/4.11/label" target="_blank" rel="noopener noreferrer">https://dequeuniversity.com/rules/axe/4.11/label</a>
+
+<span class="fix-section-label">BACKGROUND:</span>
+
+Effective form labels are required to make forms accessible. The purpose of form elements such as checkboxes, radio buttons, input fields, etcetera, is often apparent to sighted users, even if the form element is not programmatically labeled. Screen readers users require useful form labels to identify form fields. Adding a label to all form elements eliminates ambiguity and contributes to a more accessible product.</div>
+        </div>
+      </div>
+    </div>
+    <div class="accordion">
+      <button class="accordion-header" type="button" aria-expanded="false" aria-controls="serious-content" id="serious-header">
+        <span class="accordion-title">Serious</span>
+        <span class="accordion-count">(17 issues)</span>
+        <span class="caret">&#9654;</span>
+      </button>
+      <div class="accordion-content" id="serious-content" aria-labelledby="serious-header">
+        <div class="issue">
+          <div class="issue-number" role="heading" aria-level="3"><span class="sr-only">Serious </span>Issue 1</div>
+          <span class="label">Page/Component Name</span>
+          <div>Dashboard</div>
+          <span class="label">Summary</span>
+          <div>Button does not have a role</div>
+          <span class="label">Description</span>
+          <div class="description">The button does not have a role.
+The &quot;edit&quot; recipe buttons (pencil icon) do not have a role.</div>
+          <span class="label">Success Criteria</span>
+          <div>4.1.2</div>
+          <span class="label">Screenshot</span>
+          <div class="screenshots">
+            <a href="https://axeauditor.dequecloud.com/api/v2/file/d997eca8-1d39-11f1-95ba-6b5e847a3181" target="_blank" rel="noopener noreferrer"><img src="https://axeauditor.dequecloud.com/api/v2/file/d997eca8-1d39-11f1-95ba-6b5e847a3181" alt="Serious Issue 1 first screenshot" loading="lazy" /></a>
+          </div>
+          <span class="label">Source Code</span>
+          <pre class="source-code">element 1 : &lt;div tabindex=&quot;0&quot;&gt;&lt;img src=&quot;/pencil.e81f7a41.png&quot; class=&quot;edit&quot; alt=&quot;Edit&quot;&gt;&lt;/div&gt;</pre>
+          <span class="label">Recommended Fix</span>
+          <div class="recommended-fix">RULE : 
+The name, role, value, states, and properties of user interface components MUST be programmatically determinable by assistive technologies.
+
+HOW TO FIX: 
+Fix this issue by using ONE of the following techniques:
+1. Use a native HTML &lt;button&gt; element.
+
+&lt;button&gt;Apply now!&lt;/button&gt;
+
+2. Add role=&quot;button&quot; to the custom button container.
+
+&lt;span role=&quot;button&quot; class=&quot;apply-btn&quot; aria-label=&quot;Apply Now!&quot;&gt;&lt;/span&gt;
+
+<span class="fix-section-label">REFERENCE:</span> 
+W3C HTML5 Recommendation: <a href="https://www.w3.org/TR/html5/sec-forms.html#the-button-element" target="_blank" rel="noopener noreferrer">https://www.w3.org/TR/html5/sec-forms.html#the-button-element</a>
+Deque University: <a href="https://dequeuniversity.com/class/custom-widgets2/examples/button" target="_blank" rel="noopener noreferrer">https://dequeuniversity.com/class/custom-widgets2/examples/button</a>
+
+<span class="fix-section-label">BACKGROUND:</span> 
+Every user interface control must have a role to convey what type of control it is for screen reader and other assistive technology users. Native HTML elements - such as &lt;button&gt;, &lt;a&gt;, &lt;input&gt;, &lt;select&gt; - already have a role, so nothing more needs to be done. If you create a custom version of a native HTML element or a custom control or widget that does not have a native HTML equivalent, you must add the relevant role(s) using ARIA as well as expected keyboard interactions.</div>
+        </div>
+        <div class="issue">
+          <div class="issue-number" role="heading" aria-level="3"><span class="sr-only">Serious </span>Issue 2</div>
+          <span class="label">Page/Component Name</span>
+          <div>Dashboard</div>
+          <span class="label">Summary</span>
+          <div>Status message not automatically announced</div>
+          <span class="label">Description</span>
+          <div class="description">Status message is not automatically announced by the screen reader.
+When a recipe is cooked, and any of the recipe dashboard numbers are changed upon closing the modal, the change in the numbers is not announced by NVDA.</div>
+          <span class="label">Success Criteria</span>
+          <div>4.1.3</div>
+          <span class="label">Screenshot</span>
+          <div class="screenshots">
+            <a href="https://axeauditor.dequecloud.com/api/v2/file/32249920-1d3f-11f1-a514-3798bab05cef" target="_blank" rel="noopener noreferrer"><img src="https://axeauditor.dequecloud.com/api/v2/file/32249920-1d3f-11f1-a514-3798bab05cef" alt="Serious Issue 2 first screenshot" loading="lazy" /></a>
+          </div>
+          <span class="label">Source Code</span>
+          <pre class="source-code">element 1 :</pre>
+          <span class="label">Recommended Fix</span>
+          <div class="recommended-fix">RULE : 
+Status messages MUST be programmatically determined through role or properties such that they can be presented to the user by assistive technologies without receiving focus.
+
+HOW TO FIX: 
+Fix this issue by using an ARIA live region so screen readers can automatically announce the status message content.
+&lt;div aria-live=&quot;assertive&quot;&gt;Your form was successfully submitted&lt;/div&gt;
+&lt;div role=&quot;alert&quot;&gt;Please correct the errors below to continue&lt;/div&gt;
+
+<span class="fix-section-label">REFERENCE:</span> 
+Deque University:<a href="https://dequeuniversity.com/class/dynamic-updates2/notify-users/aria-live" target="_blank" rel="noopener noreferrer">https://dequeuniversity.com/class/dynamic-updates2/notify-users/aria-live</a>
+WCAG Understanding document: <a href="https://www.w3.org/WAI/WCAG21/Understanding/status-messages" target="_blank" rel="noopener noreferrer">https://www.w3.org/WAI/WCAG21/Understanding/status-messages</a>
+
+<span class="fix-section-label">BACKGROUND:</span> 
+When a status message is added to a webpage, screen reader users will likely not know about the message if focus is not moved to the message. Often it is not desirable to interrupt a user&#x27;s workflow to move focus to a status message, so people who are blind must be alerted programmatically to the presence of the status message. When a programmatic means of identifying the presence of status messages in used, assistive technologies such as screen readers are able to alert users to the presence of the message.
+NOTE: Status messages are defined as a change in content that is not a change of context (i.e. moving focus to a message) that provides information to the user on: 1) the success or results of an action (&quot;Your form was successfully submitted&quot;), 2) the loading state of an application (&quot;processing your data request&quot;), 3) the progress of a process (&quot;50% complete&quot;), or 4) the existence of errors (&quot;Please correct the errors below to continue&quot;).</div>
+        </div>
+        <div class="issue">
+          <div class="issue-number" role="heading" aria-level="3"><span class="sr-only">Serious </span>Issue 3</div>
+          <span class="label">Page/Component Name</span>
+          <div>Dashboard</div>
+          <span class="label">Summary</span>
+          <div>Visual heading text is not marked as a heading</div>
+          <span class="label">Description</span>
+          <div class="description">Text appears and functions like a section heading but is not marked up as such.
+The recipe name on each recipe card is not marked as a heading</div>
+          <span class="label">Success Criteria</span>
+          <div>1.3.1</div>
+          <span class="label">Screenshot</span>
+          <div class="screenshots">
+            <a href="https://axeauditor.dequecloud.com/api/v2/file/1b9caf46-1d3d-11f1-bb00-2bbfee5d310e" target="_blank" rel="noopener noreferrer"><img src="https://axeauditor.dequecloud.com/api/v2/file/1b9caf46-1d3d-11f1-bb00-2bbfee5d310e" alt="Serious Issue 3 first screenshot" loading="lazy" /></a>
+          </div>
+          <span class="label">Source Code</span>
+          <pre class="source-code">element 1 : &lt;div class=&quot;Heading&quot;&gt;Chocolate Cake&lt;/div&gt;</pre>
+          <span class="label">Recommended Fix</span>
+          <div class="recommended-fix">Fix this issue by using ONE of the following techniques:
+1. Use &lt;h1&gt; to &lt;h6&gt; elements to mark text as a heading.
+ Note: Using real HTML headings (&lt;h1&gt;, &lt;h2&gt;, etc.) is preferable when creating new markup.
+
+&lt;h1&gt;Types of Web Accessibility Laws&lt;/h1&gt;
+&lt;h2&gt;Civil Rights Laws&lt;/h2&gt;
+&lt;h2&gt;Procurement Laws&lt;/h2&gt;
+&lt;h2&gt;Industry-Specific Laws&lt;/h2&gt;
+
+2. When retrofitting legacy markup, using the role=&quot;heading&quot; attribute, combined with the aria-level attribute, can be a useful way to add heading semantics to markup without the risk of breaking any styles that might be attached to the legacy markup. The aria-level attribute value is heading level desired.
+
+&lt;div class=&quot;heading1&quot; role=&quot;heading&quot; aria-level=&quot;1&quot;&gt;Types of Web Accessibility Laws&lt;/div&gt;
+
+<span class="fix-section-label">REFERENCE:</span> 
+Deque University: <a href="https://dequeuniversity.com/class/semantic-structure2/headings/real-headings" target="_blank" rel="noopener noreferrer">https://dequeuniversity.com/class/semantic-structure2/headings/real-headings</a>
+W3C-WAI tutorial: <a href="https://www.w3.org/WAI/tutorials/page-structure/headings/" target="_blank" rel="noopener noreferrer">https://www.w3.org/WAI/tutorials/page-structure/headings/</a>
+
+<span class="fix-section-label">BACKGROUND:</span> 
+People who can see are able to quickly scan a page for headings and subheadings to understand the content and structure of a page. People who are blind do not have this ability if heading text is not marked in a way that screen readers can understand. Heading text and hierarchy must be identified semantically with heading markup. When heading markup is correctly applied, screen readers are able to: communicate that text is a heading and its level, provide a heading outline to users, and allow users to navigate directly from heading to heading.</div>
+        </div>
+        <div class="issue">
+          <div class="issue-number" role="heading" aria-level="3"><span class="sr-only">Serious </span>Issue 4</div>
+          <span class="label">Page/Component Name</span>
+          <div>Dashboard</div>
+          <span class="label">Summary</span>
+          <div>Text should not be marked as a heading</div>
+          <span class="label">Description</span>
+          <div class="description">Text that does not serve as a section heading is inappropriately coded as a heading.
+In the recipe dashboard section, Eggs Used, Recipes Made, and Grease Fires are marked as &lt;h2&gt;. Similarly for the Yumminess rating section. This text should not be marked as a heading</div>
+          <span class="label">Success Criteria</span>
+          <div>1.3.1</div>
+          <span class="label">Screenshot</span>
+          <div class="screenshots">
+            <a href="https://axeauditor.dequecloud.com/api/v2/file/903f6e98-1d3c-11f1-b78b-bf80e6b2b578" target="_blank" rel="noopener noreferrer"><img src="https://axeauditor.dequecloud.com/api/v2/file/903f6e98-1d3c-11f1-b78b-bf80e6b2b578" alt="Serious Issue 4 first screenshot" loading="lazy" /></a>
+            <a href="https://axeauditor.dequecloud.com/api/v2/file/904162ac-1d3c-11f1-b78c-b33f9d20d473" target="_blank" rel="noopener noreferrer"><img src="https://axeauditor.dequecloud.com/api/v2/file/904162ac-1d3c-11f1-b78c-b33f9d20d473" alt="Serious Issue 4 second screenshot" loading="lazy" /></a>
+          </div>
+          <span class="label">Source Code</span>
+          <pre class="source-code">element 1 : &lt;h2 aria-live=&quot;polite&quot; aria-relevant=&quot;all&quot; aria-atomic=&quot;true&quot;&gt;&lt;div class=&quot;Stat__value&quot;&gt;&lt;img class=&quot;Stat__value-icon&quot; src=&quot;/egg.8b86a041.svg&quot; alt=&quot;decorative icon&quot; style=&quot;padding: 2px;&quot;&gt;&lt;span&gt;9&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;div class=&quot;Stat__label&quot;&gt;Eggs used&lt;/div&gt;&lt;/div&gt;&lt;/h2&gt;</pre>
+          <span class="label">Recommended Fix</span>
+          <div class="recommended-fix">Fix this issue by removing the heading markup. Replace with more semantic markup, if possible, such as a &lt;p&gt; element. Style the text as desired using CSS.
+
+<span class="fix-section-label">REFERENCE:</span> 
+Deque University: <a href="https://dequeuniversity.com/class/semantic-structure2/headings/real-headings" target="_blank" rel="noopener noreferrer">https://dequeuniversity.com/class/semantic-structure2/headings/real-headings</a>
+W3C-WAI tutorial: <a href="https://www.w3.org/WAI/tutorials/page-structure/headings/" target="_blank" rel="noopener noreferrer">https://www.w3.org/WAI/tutorials/page-structure/headings/</a>
+
+<span class="fix-section-label">BACKGROUND:</span> 
+People who can see are able to quickly scan a page for headings and subheadings to understand the content and structure of a page. People who are blind do not have this ability if heading text is not marked in a way that screen readers can understand. Heading text and hierarchy must be identified semantically with heading markup. When heading markup is correctly applied, screen readers are able to: communicate that text is a heading and its level, provide a heading outline to users, and allow users to navigate directly from heading to heading.</div>
+        </div>
+        <div class="issue">
+          <div class="issue-number" role="heading" aria-level="3"><span class="sr-only">Serious </span>Issue 5</div>
+          <span class="label">Page/Component Name</span>
+          <div>Dashboard</div>
+          <span class="label">Summary</span>
+          <div>Focus indicator lacks 3 to 1 contrast ratio</div>
+          <span class="label">Description</span>
+          <div class="description">Focus indicator lacks 3 to 1 contrast ratio.
+The visual focus indicator for some of the edit buttons lacks 3 to 1 contrast ratio against the image background in some places.</div>
+          <span class="label">Success Criteria</span>
+          <div>1.4.11</div>
+          <span class="label">Screenshot</span>
+          <div class="screenshots">
+            <a href="https://axeauditor.dequecloud.com/api/v2/file/748231d4-1d3e-11f1-8dcb-d3faaee9f511" target="_blank" rel="noopener noreferrer"><img src="https://axeauditor.dequecloud.com/api/v2/file/748231d4-1d3e-11f1-8dcb-d3faaee9f511" alt="Serious Issue 5 first screenshot" loading="lazy" /></a>
+          </div>
+          <span class="label">Source Code</span>
+          <pre class="source-code">element 1 :</pre>
+          <span class="label">Recommended Fix</span>
+          <div class="recommended-fix">Fix this issue by adjusting the visual focus indicator to achieve 3 to 1 contrast according the scenarios below.
+
+When a focus indicator appears:
+
+1. Outside the component, it needs to contrast with the background that the component is on.
+2. Inside the component, it needs to contrast with the adjacent color(s) within the component.
+3. As the border of the component (inside the component and adjacent to the outside), it needs to contrast with both adjacent colors.
+4. Appears partly inside and partly outside, either part of the focus indicator can contrast with the adjacent colors.
+
+<span class="fix-section-label">REFERENCE:</span> 
+Deque University: <a href="https://dequeuniversity.com/class/visual-design/contrast/focus-indicator" target="_blank" rel="noopener noreferrer">https://dequeuniversity.com/class/visual-design/contrast/focus-indicator</a>
+WCAG Understanding document: <a href="https://www.w3.org/WAI/WCAG22/Understanding/non-text-contrast" target="_blank" rel="noopener noreferrer">https://www.w3.org/WAI/WCAG22/Understanding/non-text-contrast</a>
+
+<span class="fix-section-label">BACKGROUND:</span> 
+People who have low vision or are colorblind may have difficulty perceiving that an element is interactive or what its state is - e.g. whether it has keyboard focus, is selected/checked/pressed, etc. - if the contrast between the element boundaries and/or state indicators and its background or adjacent colors is insufficient. When an interactive element&#x27;s visual boundaries and state indicators have adequate contrast, people who have low vision or are colorblind are more likely to be able to perceive which elements on the screen are interactive and what their current state is.</div>
+        </div>
+        <div class="issue">
+          <div class="issue-number" role="heading" aria-level="3"><span class="sr-only">Serious </span>Issue 6</div>
+          <span class="label">Page/Component Name</span>
+          <div>Dashboard</div>
+          <span class="label">Summary</span>
+          <div>Page &lt;title&gt; does not identify purpose of the page</div>
+          <span class="label">Description</span>
+          <div class="description">The &lt;title&gt; element on this page does not identify the contents or purpose of the page.
+The page title [INSERT TITLE HERE] does not describe the content of the page</div>
+          <span class="label">Success Criteria</span>
+          <div>2.4.2</div>
+          <span class="label">Screenshot</span>
+          <div class="empty">No screenshot URL provided</div>
+          <span class="label">Source Code</span>
+          <pre class="source-code">element 1 : &lt;title&gt;[INSERT TITLE HERE]&lt;/title&gt;</pre>
+          <span class="label">Recommended Fix</span>
+          <div class="recommended-fix">Fix this issue by using the &lt;title&gt; element in the document &lt;head&gt; to provide an accurate, informative, and (preferably) unique page title.
+
+&lt;html lang=&quot;en&quot;&gt;
+&lt;head&gt;
+&lt;title&gt;Products and Services&lt;/title&gt;
+&lt;/head&gt;
+
+<span class="fix-section-label">REFERENCE:</span> 
+Deque University: <a href="https://dequeuniversity.com/class/semantic-structure2/page-title/meaningful-page-title" target="_blank" rel="noopener noreferrer">https://dequeuniversity.com/class/semantic-structure2/page-title/meaningful-page-title</a>
+
+<span class="fix-section-label">BACKGROUND:</span> 
+People who are blind cannot visually scan a page for a main heading or similar feature to quickly determine the purpose of a particular page. The &lt;title&gt; element is the first thing a screen reader reads when loading a page or switching to a new browser tab. A descriptive &lt;title&gt; element gives screen reader users a quick overview of a page without having to read the page itself.</div>
+        </div>
+        <div class="issue">
+          <div class="issue-number" role="heading" aria-level="3"><span class="sr-only">Serious </span>Issue 7</div>
+          <span class="label">Page/Component Name</span>
+          <div>Dashboard</div>
+          <span class="label">Summary</span>
+          <div>Buttons have same name but different actions</div>
+          <span class="label">Description</span>
+          <div class="description">Multiple buttons have the same labels/names but perform different actions. This is not conveyed via text associated with individual buttons.
+The pencil (edit) icons all have alt=&quot;edit&quot;, but they actually edit different recipes.</div>
+          <span class="label">Success Criteria</span>
+          <div>2.4.6</div>
+          <span class="label">Screenshot</span>
+          <div class="screenshots">
+            <a href="https://axeauditor.dequecloud.com/api/v2/file/a141b8c4-1d3a-11f1-8da3-e307502edcc9" target="_blank" rel="noopener noreferrer"><img src="https://axeauditor.dequecloud.com/api/v2/file/a141b8c4-1d3a-11f1-8da3-e307502edcc9" alt="Serious Issue 7 first screenshot" loading="lazy" /></a>
+          </div>
+          <span class="label">Source Code</span>
+          <pre class="source-code">element 1 : &lt;img src=&quot;/pencil.e81f7a41.png&quot; class=&quot;edit&quot; alt=&quot;Edit&quot; style=&quot;padding: 2px;&quot;&gt;</pre>
+          <span class="label">Recommended Fix</span>
+          <div class="recommended-fix">Fix this issue by using ONE of the following techniques:
+1. Use an aria-label attribute to provide a complete programmatic label for the button.
+
+&lt;button aria-label=&quot;Register for Class A: House training your puppy&quot;&gt;Register&lt;/button&gt;
+
+2. Use an aria-describedby attribute to associate visible text with the button to provide a complete description of the button purpose.
+
+&lt;h3 id=&quot;class-a&quot;&gt;Class A: House training your puppy&lt;/h3&gt;
+.....
+
+&lt;button aria-describedby=&quot;class-a&quot;&gt;Register&lt;/button&gt;
+
+3. Change the button label (both visible and programmatic) to provide a complete description of the button purpose.
+
+<span class="fix-section-label">REFERENCE:</span> 
+Deque University: <a href="https://dequeuniversity.com/class/forms2/labels/meaningful" target="_blank" rel="noopener noreferrer">https://dequeuniversity.com/class/forms2/labels/meaningful</a>
+
+<span class="fix-section-label">BACKGROUND:</span> 
+When multiple buttons on a page have the same name but a different action, visual users may be able to tell the purpose of each button by its location on the screen or the content near it, but screen reader users may not be able to figure that out so easily. (For example, when there are multiple &quot;Buy Me&quot; buttons on the screen, which product will a particular button buy?) Buttons with the same name but different action can be differentiated programmatically without changing the visual appearance of the content. This will allow a screen reader user to understand what each button will do and avoid making mistakes.</div>
+        </div>
+        <div class="issue">
+          <div class="issue-number" role="heading" aria-level="3"><span class="sr-only">Serious </span>Issue 8</div>
+          <span class="label">Page/Component Name</span>
+          <div>Edit recipe dialog</div>
+          <span class="label">Summary</span>
+          <div>Button have same name but different actions</div>
+          <span class="label">Description</span>
+          <div class="description">Multiple buttons have the same labels/names but perform different actions. This is not conveyed via text associated with individual buttons.
+Each of the buttons to delete an ingredient or instruction have the same aria-label=&quot;trash can icon&quot;. The labels: 1) should be &quot;delete&quot; to described the action not the icon, and 2) be differentiated to described which ingredient or instruction is going to be deleted.</div>
+          <span class="label">Success Criteria</span>
+          <div>2.4.6</div>
+          <span class="label">Screenshot</span>
+          <div class="screenshots">
+            <a href="https://axeauditor.dequecloud.com/api/v2/file/2129a622-1d4b-11f1-ad4f-cf976401f004" target="_blank" rel="noopener noreferrer"><img src="https://axeauditor.dequecloud.com/api/v2/file/2129a622-1d4b-11f1-ad4f-cf976401f004" alt="Serious Issue 8 first screenshot" loading="lazy" /></a>
+          </div>
+          <span class="label">Source Code</span>
+          <pre class="source-code">element 1 : &lt;button type=&quot;button&quot; class=&quot;RecipeModal__ingredient-delete&quot; aria-label=&quot;trash can icon&quot;&gt;&lt;div aria-hidden=&quot;true&quot; class=&quot;fa fa-trash&quot;&gt;&lt;/div&gt;&lt;/button&gt;</pre>
+          <span class="label">Recommended Fix</span>
+          <div class="recommended-fix">Fix this issue by using ONE of the following techniques:
+1. Use an aria-label attribute to provide a complete programmatic label for the button.
+
+&lt;button aria-label=&quot;Register for Class A: House training your puppy&quot;&gt;Register&lt;/button&gt;
+
+2. Use an aria-describedby attribute to associate visible text with the button to provide a complete description of the button purpose.
+
+&lt;h3 id=&quot;class-a&quot;&gt;Class A: House training your puppy&lt;/h3&gt;
+.....
+
+&lt;button aria-describedby=&quot;class-a&quot;&gt;Register&lt;/button&gt;
+
+3. Change the button label (both visible and programmatic) to provide a complete description of the button purpose.
+
+<span class="fix-section-label">REFERENCE:</span> 
+Deque University: <a href="https://dequeuniversity.com/class/forms2/labels/meaningful" target="_blank" rel="noopener noreferrer">https://dequeuniversity.com/class/forms2/labels/meaningful</a>
+
+<span class="fix-section-label">BACKGROUND:</span> 
+When multiple buttons on a page have the same name but a different action, visual users may be able to tell the purpose of each button by its location on the screen or the content near it, but screen reader users may not be able to figure that out so easily. (For example, when there are multiple &quot;Buy Me&quot; buttons on the screen, which product will a particular button buy?) Buttons with the same name but different action can be differentiated programmatically without changing the visual appearance of the content. This will allow a screen reader user to understand what each button will do and avoid making mistakes.</div>
+        </div>
+        <div class="issue">
+          <div class="issue-number" role="heading" aria-level="3"><span class="sr-only">Serious </span>Issue 9</div>
+          <span class="label">Page/Component Name</span>
+          <div>Edit recipe dialog</div>
+          <span class="label">Summary</span>
+          <div>Active user interface component lacks 3 to 1 contrast radio</div>
+          <span class="label">Description</span>
+          <div class="description">The visual boundary of an ACTIVE user interface component does not have at least a 3 to 1 luminosity contrast ratio with either the inner or outer adjacent background.
+The text field boundaries (#ccc) have a contrast of only 1.6:1 with the white background.</div>
+          <span class="label">Success Criteria</span>
+          <div>1.4.11</div>
+          <span class="label">Screenshot</span>
+          <div class="screenshots">
+            <a href="https://axeauditor.dequecloud.com/api/v2/file/69935af8-1d4a-11f1-88a7-4bddc619792c" target="_blank" rel="noopener noreferrer"><img src="https://axeauditor.dequecloud.com/api/v2/file/69935af8-1d4a-11f1-88a7-4bddc619792c" alt="Serious Issue 9 first screenshot" loading="lazy" /></a>
+          </div>
+          <span class="label">Source Code</span>
+          <pre class="source-code">element 1 : &lt;input
+  class=&quot;dqpl-text-input&quot;
+  id=&quot;x_30_5597&quot;
+  aria-invalid=&quot;false&quot;
+  required=&quot;&quot;
+  value=&quot;2 cups white sugar&quot;/&gt;
+
+&lt;textarea class=&quot;dqpl-textarea&quot; id=&quot;x_56_9001&quot; aria-invalid=&quot;false&quot; required=&quot;&quot;&gt;
+sample text
+&lt;/textarea&gt;</pre>
+          <span class="label">Recommended Fix</span>
+          <div class="recommended-fix">Fix this issue by adjusting the user interface component boundary and/or background to increase the contrast with either the inner or outer adjacent background to at least 3 to 1.
+
+<span class="fix-section-label">REFERENCE:</span> 
+WCAG Understanding document: <a href="https://www.w3.org/WAI/WCAG21/Understanding/non-text-contrast" target="_blank" rel="noopener noreferrer">https://www.w3.org/WAI/WCAG21/Understanding/non-text-contrast</a>
+
+<span class="fix-section-label">BACKGROUND:</span> 
+People who have low vision or are colorblind may have difficulty perceiving that an element is interactive or what its state is - e.g. whether it has keyboard focus, is selected/checked/pressed, etc. - if the contrast between the element boundaries and/or state indicators and its background or adjacent colors is insufficient. When an interactive element&#x27;s visual boundaries and state indicators have adequate contrast, people who have low vision or are colorblind are more likely to be able to perceive which elements on the screen are interactive and what their current state is.</div>
+        </div>
+        <div class="issue">
+          <div class="issue-number" role="heading" aria-level="3"><span class="sr-only">Serious </span>Issue 10</div>
+          <span class="label">Page/Component Name</span>
+          <div>Edit recipe dialog</div>
+          <span class="label">Summary</span>
+          <div>Keyboard focus is lost or misplaced due to user interaction or content update</div>
+          <span class="label">Description</span>
+          <div class="description">Keyboard focus is lost or placed on the wrong element during user interaction, content refresh or update, or other reason.
+When an ingredient is deleted, keyboard focus is lost to the top of the modal.</div>
+          <span class="label">Success Criteria</span>
+          <div>2.4.3</div>
+          <span class="label">Screenshot</span>
+          <div class="empty">No screenshot URL provided</div>
+          <span class="label">Source Code</span>
+          <pre class="source-code">element 1 : &lt;button type=&quot;button&quot; class=&quot;RecipeModal__ingredient-delete&quot; aria-label=&quot;trash can icon&quot;&gt;&lt;div aria-hidden=&quot;true&quot; class=&quot;fa fa-trash&quot;&gt;&lt;/div&gt;&lt;/button&gt;</pre>
+          <span class="label">Recommended Fix</span>
+          <div class="recommended-fix">Fix this issue by explicitly placing focus on a logical element when content is removed, refreshed, or added, for example:
+1. For content added to the screen in reaction to a user-fired event, focus should be shifted to the new content - such as in single page applications.
+2. For content removed from the screen in reaction to a user-fired event, focus should be shifted to the next logical place in the interaction.
+
+<span class="fix-section-label">REFERENCE:</span> 
+Deque University: <a href="https://dequeuniversity.com/class/input-methods2/keyboard-input/focus-management" target="_blank" rel="noopener noreferrer">https://dequeuniversity.com/class/input-methods2/keyboard-input/focus-management</a>
+Deque University:<a href="https://dequeuniversity.com/class/dynamic-updates2/notify-users/move-focus" target="_blank" rel="noopener noreferrer">https://dequeuniversity.com/class/dynamic-updates2/notify-users/move-focus</a>
+Deque University: <a href="https://dequeuniversity.com/class/dynamic-updates2/ajax/single-page-applications" target="_blank" rel="noopener noreferrer">https://dequeuniversity.com/class/dynamic-updates2/ajax/single-page-applications</a>
+
+<span class="fix-section-label">BACKGROUND:</span> 
+One of the biggest challenges when creating rich web interfaces using JavaScript is the management of focus when new content or controls are added or removed from the page. The presentation or modification of content on the screen may require that the user interact with -or at the very least, take notice of - the new or changed content. It is important to have a clear indication of page content that has been updated. This allows the user to understand the change and also allows a keyboard user to interact with any new content.</div>
+        </div>
+        <div class="issue">
+          <div class="issue-number" role="heading" aria-level="3"><span class="sr-only">Serious </span>Issue 11</div>
+          <span class="label">Page/Component Name</span>
+          <div>Edit recipe dialog</div>
+          <span class="label">Summary</span>
+          <div>Info or functionality is unavailable at 320px width equivalent</div>
+          <span class="label">Description</span>
+          <div class="description">Information or functionality is unavailable when the page is adjusted to an equivalent width of 320px.
+When the page is opened at width of 320px, the content and functionlity in the cook recipe dialog is not fully visible.</div>
+          <span class="label">Success Criteria</span>
+          <div>1.4.10</div>
+          <span class="label">Screenshot</span>
+          <div class="screenshots">
+            <a href="https://axeauditor.dequecloud.com/api/v2/file/ded683a6-1e0a-11f1-b5c4-83df1eaacd59" target="_blank" rel="noopener noreferrer"><img src="https://axeauditor.dequecloud.com/api/v2/file/ded683a6-1e0a-11f1-b5c4-83df1eaacd59" alt="Serious Issue 11 first screenshot" loading="lazy" /></a>
+          </div>
+          <span class="label">Source Code</span>
+          <pre class="source-code">element 1 :</pre>
+          <span class="label">Recommended Fix</span>
+          <div class="recommended-fix">Fix this issue by ensuring all content and functionality are still available either: directly on the screen, revealed via accessible controls on the same screen, accessible via direct links from the screen being assessed, or via clear instructions on how to locate the content or functionality when content is set to a 320 pixel width equivalent.
+
+<span class="fix-section-label">REFERENCE:</span> 
+Deque University:<a href="https://dequeuniversity.com/class/responsive-zoom/zoom/linear-text-reflow" target="_blank" rel="noopener noreferrer">https://dequeuniversity.com/class/responsive-zoom/zoom/linear-text-reflow</a>
+<a href="https://dequeuniversity.com/class/responsive-zoom/responsive/" target="_blank" rel="noopener noreferrer">https://dequeuniversity.com/class/responsive-zoom/responsive/</a>
+WCAG Understanding document:
+<a href="https://www.w3.org/WAI/WCAG21/Understanding/reflow" target="_blank" rel="noopener noreferrer">https://www.w3.org/WAI/WCAG21/Understanding/reflow</a>
+
+<span class="fix-section-label">BACKGROUND:</span> 
+People with low vision often read content on a desktop computer by scaling content using the browser zoom - up to 400%. When zooming causes content to overlap other content, users with low vision may not be able to see or use that content. When content is created so that it reflows without losing information or functionality at screen widths down to 320px, users can view a web page in a 1280px width browser screen and zoom the content to 400% (320px) without having to scroll side to side to read and without losing access to content.</div>
+        </div>
+        <div class="issue">
+          <div class="issue-number" role="heading" aria-level="3"><span class="sr-only">Serious </span>Issue 12</div>
+          <span class="label">Page/Component Name</span>
+          <div>Edit recipe dialog</div>
+          <span class="label">Summary</span>
+          <div>Label does not convey purpose of the control</div>
+          <span class="label">Description</span>
+          <div class="description">The label does not convey the purpose of the control.
+Every one of the ingredient input has the same label: Ingredient. They should be differentiated from each other, for example: Ingredient 1, Ingredient 2, etc.
+The same is applicable to the Instruction inputs.</div>
+          <span class="label">Success Criteria</span>
+          <div>2.4.6</div>
+          <span class="label">Screenshot</span>
+          <div class="screenshots">
+            <a href="https://axeauditor.dequecloud.com/api/v2/file/8d097184-1d4a-11f1-a0c1-5314f11eca3d" target="_blank" rel="noopener noreferrer"><img src="https://axeauditor.dequecloud.com/api/v2/file/8d097184-1d4a-11f1-a0c1-5314f11eca3d" alt="Serious Issue 12 first screenshot" loading="lazy" /></a>
+            <a href="https://axeauditor.dequecloud.com/api/v2/file/8d0c0fa2-1d4a-11f1-a0c2-334ea9e16c05" target="_blank" rel="noopener noreferrer"><img src="https://axeauditor.dequecloud.com/api/v2/file/8d0c0fa2-1d4a-11f1-a0c2-334ea9e16c05" alt="Serious Issue 12 second screenshot" loading="lazy" /></a>
+          </div>
+          <span class="label">Source Code</span>
+          <pre class="source-code">element 1 : &lt;div class=&quot;dqpl-field-wrap&quot;&gt;
+  &lt;label class=&quot;dqpl-label dqpl-required&quot; for=&quot;x_2_4084&quot;
+    &gt;&lt;span&gt;Ingredient&lt;/span
+    &gt;&lt;span class=&quot;dqpl-required-text&quot;&gt;Required&lt;/span&gt;&lt;/label
+  &gt;&lt;input
+    class=&quot;dqpl-text-input&quot;
+    id=&quot;x_2_4084&quot;
+    aria-invalid=&quot;false&quot;
+    required=&quot;&quot;
+    value=&quot;2 cups white sugar&quot;
+  /&gt;
+  &lt;div class=&quot;dqpl-error-wrap&quot; id=&quot;x_3_8419&quot;&gt;&lt;/div&gt;
+&lt;/div&gt;</pre>
+          <span class="label">Recommended Fix</span>
+          <div class="recommended-fix">Fix this issue by providing a descriptive label for the control.
+
+<span class="fix-section-label">REFERENCE:</span> 
+Deque University: <a href="https://dequeuniversity.com/class/forms2/labels/meaningful" target="_blank" rel="noopener noreferrer">https://dequeuniversity.com/class/forms2/labels/meaningful</a>
+
+<span class="fix-section-label">BACKGROUND:</span> 
+When form fields or interactive controls have vague or misleading labels, people may not understand the type of data expected or what a control will do if activated. This is especially true for people with cognitive disabilities and people who are blind and use a screen reader. Both the visible and the programmatic label must sufficiently describe the purpose of the form field or control. Descriptive labels give people confidence when filling out a form or using interactive content and help prevent mistakes.</div>
+        </div>
+        <div class="issue">
+          <div class="issue-number" role="heading" aria-level="3"><span class="sr-only">Serious </span>Issue 13</div>
+          <span class="label">Page/Component Name</span>
+          <div>Edit recipe dialog</div>
+          <span class="label">Summary</span>
+          <div>Text content lacks 4.5:1 contrast ratio</div>
+          <span class="label">Description</span>
+          <div class="description">The contrast ratio between text and its background is not at least 4.5:1.
+The blue button text (#3c7aae) on gray background (#EFEFEF) has a contrast of only 4.0:1.
+
+Element Location: 
+- Add another ingredient button
+- Add  another instruction button</div>
+          <span class="label">Success Criteria</span>
+          <div>1.4.3</div>
+          <span class="label">Screenshot</span>
+          <div class="screenshots">
+            <a href="https://axeauditor.dequecloud.com/api/v2/file/de3811f4-1d41-11f1-8481-9ff609b28892" target="_blank" rel="noopener noreferrer"><img src="https://axeauditor.dequecloud.com/api/v2/file/de3811f4-1d41-11f1-8481-9ff609b28892" alt="Serious Issue 13 first screenshot" loading="lazy" /></a>
+            <a href="https://axeauditor.dequecloud.com/api/v2/file/26494cba-1d51-11f1-bd12-5759ff2ef464" target="_blank" rel="noopener noreferrer"><img src="https://axeauditor.dequecloud.com/api/v2/file/26494cba-1d51-11f1-bd12-5759ff2ef464" alt="Serious Issue 13 second screenshot" loading="lazy" /></a>
+          </div>
+          <span class="label">Source Code</span>
+          <pre class="source-code">element 1 : &lt;button type=&quot;button&quot; class=&quot;dqpl-link&quot; data-testid=&quot;add-ingredient&quot;&gt;
+  + Add another ingredient
+&lt;/button&gt;
+
+&lt;button type=&quot;button&quot; class=&quot;dqpl-link&quot; data-testid=&quot;add-instruction&quot;&gt;
+  + Add another instruction
+&lt;/button&gt;</pre>
+          <span class="label">Recommended Fix</span>
+          <div class="recommended-fix">Fix this issue by adjusting the text and/or background to increase the contrast to at least 4.5 to 1.
+
+<span class="fix-section-label">REFERENCE:</span> 
+Deque University: <a href="https://dequeuniversity.com/class/visual-design2/contrast/text-against-background" target="_blank" rel="noopener noreferrer">https://dequeuniversity.com/class/visual-design2/contrast/text-against-background</a>
+
+<span class="fix-section-label">BACKGROUND:</span> 
+People who have low vision or are colorblind may have difficulty reading text if the contrast between the text its background is insufficient. When the contrast ratio between text and its background is adequate, people who have low vision or are colorblind are more likely to be able to read the text.</div>
+        </div>
+        <div class="issue">
+          <div class="issue-number" role="heading" aria-level="3"><span class="sr-only">Serious </span>Issue 14</div>
+          <span class="label">Page/Component Name</span>
+          <div>Dashboard</div>
+          <span class="label">Summary</span>
+          <div>Elements must meet minimum color contrast ratio thresholds</div>
+          <span class="label">Description</span>
+          <div class="description">Elements must meet minimum color contrast ratio thresholds
+Element Location:  &quot;Beginner&quot; text
+
+There are 4 occurences of &quot;Beginner&quot; text that fails contrast (Minimum)</div>
+          <span class="label">Success Criteria</span>
+          <div>1.4.3</div>
+          <span class="label">Screenshot</span>
+          <div class="screenshots">
+            <a href="https://axeauditor.dequecloud.com/api/v2/file/19a101be-1d5c-11f1-89cd-af55d4477ab5" target="_blank" rel="noopener noreferrer"><img src="https://axeauditor.dequecloud.com/api/v2/file/19a101be-1d5c-11f1-89cd-af55d4477ab5" alt="Serious Issue 14 first screenshot" loading="lazy" /></a>
+          </div>
+          <span class="label">Source Code</span>
+          <pre class="source-code">element 1 : &lt;td class=&quot;Beginner&quot;&gt;Beginner&lt;/td&gt;</pre>
+          <span class="label">Recommended Fix</span>
+          <div class="recommended-fix">Element has insufficient color contrast of 2.17 (foreground color: #76bf98, background color: #ffffff, font size: 13.5pt (18px), font weight: normal). 
+
+Expected contrast ratio of 4.5:1
+
+Change the color of the text to meet minimum color contrast ratio of 4.5 to 1 from its background color.
+
+<span class="fix-section-label">REFERENCE:</span>
+<a href="https://dequeuniversity.com/rules/axe/4.11/color-contrast" target="_blank" rel="noopener noreferrer">https://dequeuniversity.com/rules/axe/4.11/color-contrast</a></div>
+        </div>
+        <div class="issue">
+          <div class="issue-number" role="heading" aria-level="3"><span class="sr-only">Serious </span>Issue 15</div>
+          <span class="label">Page/Component Name</span>
+          <div>Cook (recipe) dialog</div>
+          <span class="label">Summary</span>
+          <div>Info or functionality is unavailable at 320px width equivalent</div>
+          <span class="label">Description</span>
+          <div class="description">Information or functionality is unavailable when the page is adjusted to an equivalent width of 320px.
+When the page is opened at width of 320px, the content and functionlity in the cook recipe dialog is not fully visible.</div>
+          <span class="label">Success Criteria</span>
+          <div>1.4.10</div>
+          <span class="label">Screenshot</span>
+          <div class="screenshots">
+            <a href="https://axeauditor.dequecloud.com/api/v2/file/b8265e58-1dd7-11f1-80ab-6f7869798b93" target="_blank" rel="noopener noreferrer"><img src="https://axeauditor.dequecloud.com/api/v2/file/b8265e58-1dd7-11f1-80ab-6f7869798b93" alt="Serious Issue 15 first screenshot" loading="lazy" /></a>
+          </div>
+          <span class="label">Source Code</span>
+          <pre class="source-code">element 1 :</pre>
+          <span class="label">Recommended Fix</span>
+          <div class="recommended-fix">Fix this issue by ensuring all content and functionality are still available either: directly on the screen, revealed via accessible controls on the same screen, accessible via direct links from the screen being assessed, or via clear instructions on how to locate the content or functionality when content is set to a 320 pixel width equivalent.
+
+<span class="fix-section-label">REFERENCE:</span> 
+Deque University:<a href="https://dequeuniversity.com/class/responsive-zoom/zoom/linear-text-reflow" target="_blank" rel="noopener noreferrer">https://dequeuniversity.com/class/responsive-zoom/zoom/linear-text-reflow</a>
+<a href="https://dequeuniversity.com/class/responsive-zoom/responsive/" target="_blank" rel="noopener noreferrer">https://dequeuniversity.com/class/responsive-zoom/responsive/</a>
+WCAG Understanding document:
+<a href="https://www.w3.org/WAI/WCAG21/Understanding/reflow" target="_blank" rel="noopener noreferrer">https://www.w3.org/WAI/WCAG21/Understanding/reflow</a>
+
+<span class="fix-section-label">BACKGROUND:</span> 
+People with low vision often read content on a desktop computer by scaling content using the browser zoom - up to 400%. When zooming causes content to overlap other content, users with low vision may not be able to see or use that content. When content is created so that it reflows without losing information or functionality at screen widths down to 320px, users can view a web page in a 1280px width browser screen and zoom the content to 400% (320px) without having to scroll side to side to read and without losing access to content.</div>
+        </div>
+        <div class="issue">
+          <div class="issue-number" role="heading" aria-level="3"><span class="sr-only">Serious </span>Issue 16</div>
+          <span class="label">Page/Component Name</span>
+          <div>Cook (recipe) dialog</div>
+          <span class="label">Summary</span>
+          <div>Error message does not convey required values</div>
+          <span class="label">Description</span>
+          <div class="description">The error message does not indicate expected range of data values.
+The error message when data is entered into the Rate the yumminess input is too large does not described how to fix the error: e.g. tell the user the number entered is too large.</div>
+          <span class="label">Success Criteria</span>
+          <div>3.3.3</div>
+          <span class="label">Screenshot</span>
+          <div class="screenshots">
+            <a href="https://axeauditor.dequecloud.com/api/v2/file/3d078472-1d41-11f1-9d3b-f7f6a31f5a45" target="_blank" rel="noopener noreferrer"><img src="https://axeauditor.dequecloud.com/api/v2/file/3d078472-1d41-11f1-9d3b-f7f6a31f5a45" alt="Serious Issue 16 first screenshot" loading="lazy" /></a>
+          </div>
+          <span class="label">Source Code</span>
+          <pre class="source-code">element 1 :</pre>
+          <span class="label">Recommended Fix</span>
+          <div class="recommended-fix">Fix this issue by identifying the data range that is allowed for the form field in the error message.
+
+<span class="fix-section-label">REFERENCE:</span> 
+Deque University: <a href="https://dequeuniversity.com/class/forms2/form-validation/error-identification" target="_blank" rel="noopener noreferrer">https://dequeuniversity.com/class/forms2/form-validation/error-identification</a>
+
+<span class="fix-section-label">BACKGROUND:</span> 
+Even when people are aware that an error in a form has occurred, they may not know how to correct it. Whenever it is possible, error messages should provide appropriate suggestions for correction of an input error such as: an example format for a date or account number; information on characters that may not be used in a field; or notification that data is not within the expected range. This will allow people to recover from mistakes more easily while filling out a form.</div>
+        </div>
+        <div class="issue">
+          <div class="issue-number" role="heading" aria-level="3"><span class="sr-only">Serious </span>Issue 17</div>
+          <span class="label">Page/Component Name</span>
+          <div>Cook (recipe) dialog</div>
+          <span class="label">Summary</span>
+          <div>Accessible name missing</div>
+          <span class="label">Description</span>
+          <div class="description">The visible label is not in the accessible name because the label is not associated with the control.
+The Rate the Yumminess input does not have an accessible name. therefore the visible label is not contained in the accessible name.</div>
+          <span class="label">Success Criteria</span>
+          <div>2.5.3</div>
+          <span class="label">Screenshot</span>
+          <div class="screenshots">
+            <a href="https://axeauditor.dequecloud.com/api/v2/file/21f6f2ee-1d41-11f1-932f-b3084bcced33" target="_blank" rel="noopener noreferrer"><img src="https://axeauditor.dequecloud.com/api/v2/file/21f6f2ee-1d41-11f1-932f-b3084bcced33" alt="Serious Issue 17 first screenshot" loading="lazy" /></a>
+          </div>
+          <span class="label">Source Code</span>
+          <pre class="source-code">element 1 : &lt;div class=&quot;dqpl-field-wrap&quot;&gt;&lt;label class=&quot;dqpl-label&quot; for=&quot;x_6_3663&quot;&gt;&lt;span&gt; &lt;/span&gt;&lt;/label&gt;&lt;input class=&quot;dqpl-text-input&quot; id=&quot;x_6_3663&quot; aria-invalid=&quot;false&quot; type=&quot;number&quot; min=&quot;0&quot; max=&quot;50&quot; value=&quot;50&quot;&gt;&lt;div class=&quot;dqpl-error-wrap&quot; id=&quot;x_7_8738&quot;&gt;&lt;/div&gt;&lt;/div&gt;</pre>
+          <span class="label">Recommended Fix</span>
+          <div class="recommended-fix">Fix this issue by using ONE of the following techniques to associate the visible text label with the control:
+
+1. Explicit label: Under most circumstances, the best technique is to use the &lt;label&gt; element with the for attribute. The value of the for attribute is the id attribute value of the &lt;input&gt; element.
+
+&lt;label for=&quot;fname&quot;&gt;First Name:&lt;/label&gt; 
+&lt;input type=&quot;text&quot; name=&quot;fn&quot; id=&quot;fname&quot;&gt;
+
+2. Use an aria-label attribute. Be sure that the aria-label value contains the text of the visible label in the same order that it appears in the visible label.
+
+&lt;span &gt;Preferred Nickname:&lt;/span&gt;
+&lt;input type=&quot;text&quot; aria-label=&quot;Preferred Nickname&quot;&gt;
+
+3. Use an aria-labelledby attribute on the &lt;input&gt; to reference a visible label. The value of the aria-labelledby attribute is the id attribute value of the visible text label.
+
+&lt;span id=&quot;nickname&quot;&gt;Nickname:&lt;/span&gt;
+&lt;input type=&quot;text&quot; aria-labelledby=&quot;nickname&quot;&gt;
+
+4. Implicit label (explicit label method is strongly preferred): Wrap the form element within the &lt;label&gt; element.
+
+&lt;label&gt;First Name: &lt;input type=&quot;text&quot; name=&quot;fn&quot;&gt;&lt;/label&gt;
+
+<span class="fix-section-label">REFERENCE:</span> 
+Deque University: <a href="https://dequeuniversity.com/class/forms/labels/visibility" target="_blank" rel="noopener noreferrer">https://dequeuniversity.com/class/forms/labels/visibility</a>
+WCAG Understanding document: <a href="https://www.w3.org/WAI/WCAG22/Understanding/label-in-name" target="_blank" rel="noopener noreferrer">https://www.w3.org/WAI/WCAG22/Understanding/label-in-name</a>
+
+<span class="fix-section-label">BACKGROUND:</span> 
+Speech input users can interact with a webpage by speaking the visible text labels of menus, links, and buttons that appear on the screen. It is confusing to speech input users when they say a visible text label they see, but the speech command does not work because the component&#x27;s accessible (programmatic) name does not contain the visible label. When a user interface component has a visible text label - whether it be real text or an image of text - that text must also be found in the component&#x27;s accessible (programmatic) name. When the visible label and accessible (programmatic) name for interactive components are in sync, speech input users can effectively interact with those components.</div>
+        </div>
+      </div>
+    </div>
+    <div class="accordion">
+      <button class="accordion-header" type="button" aria-expanded="false" aria-controls="moderate-content" id="moderate-header">
+        <span class="accordion-title">Moderate</span>
+        <span class="accordion-count">(1 issue)</span>
+        <span class="caret">&#9654;</span>
+      </button>
+      <div class="accordion-content" id="moderate-content" aria-labelledby="moderate-header">
+        <div class="issue">
+          <div class="issue-number" role="heading" aria-level="3"><span class="sr-only">Moderate </span>Issue 1</div>
+          <span class="label">Page/Component Name</span>
+          <div>Dashboard</div>
+          <span class="label">Summary</span>
+          <div>Decorative image has non-empty alt attribute</div>
+          <span class="label">Description</span>
+          <div class="description">The use of a text alternative with decorative images is not appropriate. The decorative &lt;img&gt; is missing an empty alt attribute (alt=&quot;&quot;) or role=&quot;presentation&quot;.
+The decorative images at the top of the recipe dashboard have alt=&quot;decorative image&quot;. The alt should be empty (alt=&quot;&quot;)</div>
+          <span class="label">Success Criteria</span>
+          <div>1.1.1</div>
+          <span class="label">Screenshot</span>
+          <div class="screenshots">
+            <a href="https://axeauditor.dequecloud.com/api/v2/file/6f88a554-1d3a-11f1-8a63-bbac21454d2b" target="_blank" rel="noopener noreferrer"><img src="https://axeauditor.dequecloud.com/api/v2/file/6f88a554-1d3a-11f1-8a63-bbac21454d2b" alt="Moderate Issue 1 first screenshot" loading="lazy" /></a>
+          </div>
+          <span class="label">Source Code</span>
+          <pre class="source-code">element 1 : &lt;img class=&quot;Stat__value-icon&quot; src=&quot;/egg.8b86a041.svg&quot; alt=&quot;decorative icon&quot; style=&quot;padding: 2px;&quot;&gt;
+&lt;img class=&quot;Stat__value-icon&quot; src=&quot;/recipe.d071fedf.svg&quot; alt=&quot;decorative icon&quot; style=&quot;padding: 2px;&quot;&gt;
+&lt;img class=&quot;Stat__value-icon&quot; src=&quot;/fire.012d9ab2.svg&quot; alt=&quot;decorative icon&quot; style=&quot;padding: 2px;&quot;&gt;</pre>
+          <span class="label">Recommended Fix</span>
+          <div class="recommended-fix">Fix this issue by using an empty alt attribute (alt=&quot;&quot;) on the &lt;img&gt; element.
+
+&lt;a href=&quot;contact.html&quot;&gt;&lt;img src=&quot;phone.png&quot; alt=&quot;&quot;&gt;Contact Us&lt;/a&gt;
+
+<span class="fix-section-label">REFERENCE:</span> 
+Deque University: <a href="https://dequeuniversity.com/class/images2/alt-text/decorative-redundant" target="_blank" rel="noopener noreferrer">https://dequeuniversity.com/class/images2/alt-text/decorative-redundant</a>
+W3C-WAI tutorial: <a href="https://www.w3.org/WAI/tutorials/images/" target="_blank" rel="noopener noreferrer">https://www.w3.org/WAI/tutorials/images/</a>
+
+<span class="fix-section-label">BACKGROUND:</span> 
+Decorative images do not add information to the content of a page. Examples of decorative images include an image whose content is provided by adjacent text, or an image that is used just for visual effect such as a hero image, a background image, a stock photo, or a decorative flourish. Decorative images should be coded in such a way that screen readers can ignore them.</div>
+        </div>
+      </div>
+    </div>
+    <div class="accordion">
+      <button class="accordion-header" type="button" aria-expanded="false" aria-controls="minor-content" id="minor-header">
+        <span class="accordion-title">Minor</span>
+        <span class="accordion-count">(1 issue)</span>
+        <span class="caret">&#9654;</span>
+      </button>
+      <div class="accordion-content" id="minor-content" aria-labelledby="minor-header">
+        <div class="issue">
+          <div class="issue-number" role="heading" aria-level="3"><span class="sr-only">Minor </span>Issue 1</div>
+          <span class="label">Page/Component Name</span>
+          <div>Cook (recipe) dialog</div>
+          <span class="label">Summary</span>
+          <div>ARIA dialog node should have an accessible name</div>
+          <span class="label">Description</span>
+          <div class="description">Modal dialog missing accessible name.
+Element description: Cook Recipe Dialog, and Edit Recipe Dialog
+Description of the issue:  Ensure every ARIA dialog node has an accessible name</div>
+          <span class="label">Issue Type</span>
+          <div>Best Practice</div>
+          <span class="label">Success Criteria</span>
+          <div>4.1.2</div>
+          <span class="label">Screenshot</span>
+          <div class="empty">No screenshot URL provided</div>
+          <span class="label">Source Code</span>
+          <pre class="source-code">element 1 : &lt;div role=&quot;dialog&quot; class=&quot;dqpl-modal RecipeModal dqpl-dialog-show&quot;&gt;</pre>
+          <span class="label">Recommended Fix</span>
+          <div class="recommended-fix">To solve this problem, you need to fix at least (1) of the following:
+1. aria-label attribute on the dialog container
+2. aria-labelledby attribute that references elements that references elements that are non-empty
+
+<span class="fix-section-label">BACKGROUND:</span>
+
+Screen reader users are not able to discern the purpose of elements with role=&quot;dialog&quot; or role=&quot;alertdialog&quot; that do not have an accessible name.</div>
+        </div>
+      </div>
+    </div>
+    </section>
+    <section class="severity-section" aria-label="Severity description">
+    <h2>Severity Description</h2>
+      <div class="accordion">
+        <button class="accordion-header" type="button" aria-expanded="false" aria-controls="severity-content" id="severity-header">
+          <span class="accordion-title">User Impact</span>
+          <span class="caret">&#9654;</span>
+        </button>
+        <div class="accordion-content" id="severity-content" aria-labelledby="severity-header">
+          <table class="severity-table">
+            <tbody>
+              <tr>
+                <td class="severity-label">Blocker</td>
+                <td>These issues are showstoppers and result in catastrophic roadblocks for people with disabilities. These issues will definitely prevent people from accessing fundamental features or content, with no possible workarounds. This type of issue puts your organization at high risk. Prioritize fixing immediately, and deploy hotfixes as soon as possible. Should be extremely rare. An example of a blocker issue is a SC 2.3.1 - Three Flashes or Below Threshold which can cause seizures.</td>
+              </tr>
+              <tr>
+                <td class="severity-label">Critical</td>
+                <td>This issue results in blocked content for people with disabilities, and will definitely prevent them from accessing fundamental features or content. This type of issue puts your organization at risk. Prioritize fixing as soon as possible, within the week if possible. Remediation should be a top priority. Should be infrequent.</td>
+              </tr>
+              <tr>
+                <td class="severity-label">Serious</td>
+                <td>This issue results in serious barriers for people with disabilities, and will partially prevent them from accessing fundamental features or content. People relying on assistive technologies will experience significant frustration as a result. Issues falling under this category are major problems, and remediation should be a priority. Should be very common.</td>
+              </tr>
+              <tr>
+                <td class="severity-label">Moderate</td>
+                <td>This issue results in some barriers for people with disabilities, but will not prevent them from accessing fundamental features or content. Prioritize fixing in this release, if there are no higher-priority issues. Will get in the way of compliance if not fixed. Should be fairly common.</td>
+              </tr>
+              <tr>
+                <td class="severity-label">Minor</td>
+                <td>Considered to be a nuisance or an annoyance bug. Prioritize fixing if the fix only takes a few minutes and the developer is working on the same screen/feature at the same time, otherwise the issue should not be prioritized. Will still get in the way of compliance if not fixed. Should be very infrequent.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </div>
+</main>
+  <script>
+    document.querySelectorAll(".accordion-header").forEach((header) => {
+      const content = document.getElementById(header.getAttribute("aria-controls"));
+      const caret = header.querySelector(".caret");
+      const toggle = () => {
+        const expanded = header.getAttribute("aria-expanded") === "true";
+        header.setAttribute("aria-expanded", expanded ? "false" : "true");
+        content.classList.toggle("open", !expanded);
+        caret.classList.toggle("rotate", !expanded);
+      };
+      header.addEventListener("click", toggle);
+      header.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          toggle();
+        }
+      });
+    });
+    const severityToggle = document.querySelector(".severity-caret");
+    if (severityToggle) {
+      const severityContent = document.getElementById(severityToggle.getAttribute("aria-controls"));
+      const severityCaret = severityToggle.querySelector(".caret");
+      severityToggle.addEventListener("click", () => {
+        const expanded = severityToggle.getAttribute("aria-expanded") === "true";
+        severityToggle.setAttribute("aria-expanded", expanded ? "false" : "true");
+        severityContent.classList.toggle("open", !expanded);
+        severityCaret.classList.toggle("rotate", !expanded);
+      });
+    }
+  </script>
+</body>
+</html>
